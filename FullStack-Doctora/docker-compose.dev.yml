@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres:
+    image: postgres:15-alpine
+    container_name: doctora-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: doctorbook
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - doctora-dev-network
+
+  # Backend (Development mode with hot reload)
+  backend:
+    build:
+      context: ./doctora-spring-boot
+      dockerfile: Dockerfile
+    container_name: doctora-backend-dev
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: doctorbook
+      DB_USERNAME: admin
+      DB_PASSWORD: password
+      JWT_SECRET: mySecretKey12345678901234567890123456789012345678901234567890
+      JWT_EXPIRATION: 86400000
+      SERVER_PORT: 8082
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./doctora-spring-boot/src:/app/src
+    networks:
+      - doctora-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  doctora-dev-network:
+    driver: bridge

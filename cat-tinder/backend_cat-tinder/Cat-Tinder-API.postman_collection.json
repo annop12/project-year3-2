@@ -1,0 +1,260 @@
+{
+  "info": {
+    "name": "Cat Tinder API - Swipe & Match",
+    "description": "API Collection for testing Swipe and Match system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Swipe System",
+      "item": [
+        {
+          "name": "Create Swipe (Like)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}",
+                "description": "Owner ID from auth"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"swiperCatId\": \"{{cat1_id}}\",\n  \"targetCatId\": \"{{cat4_id}}\",\n  \"action\": \"like\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/swipes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "swipes"]
+            }
+          }
+        },
+        {
+          "name": "Create Swipe (Like Back - MATCH!)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-owner-id",
+                "value": "{{owner2_id}}",
+                "description": "Different owner liking back"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"swiperCatId\": \"{{cat4_id}}\",\n  \"targetCatId\": \"{{cat1_id}}\",\n  \"action\": \"like\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/swipes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "swipes"]
+            }
+          }
+        },
+        {
+          "name": "Create Swipe (Pass)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"swiperCatId\": \"{{cat2_id}}\",\n  \"targetCatId\": \"{{cat3_id}}\",\n  \"action\": \"pass\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/swipes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "swipes"]
+            }
+          }
+        },
+        {
+          "name": "Get Swipe History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/swipes/history?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "swipes", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "action",
+                  "value": "like",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Match System",
+      "item": [
+        {
+          "name": "Get All Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/matches?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matches"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Match Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/matches/{{match_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matches", "{{match_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/matches/{{match_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matches", "{{match_id}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-owner-id",
+                "value": "{{owner1_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Hello! Your cat is so cute! 🐱\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/matches/{{match_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "matches", "{{match_id}}", "messages"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "owner1_id",
+      "value": "PASTE_OWNER1_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "owner2_id",
+      "value": "PASTE_OWNER2_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cat1_id",
+      "value": "PASTE_CAT1_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cat2_id",
+      "value": "PASTE_CAT2_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cat3_id",
+      "value": "PASTE_CAT3_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cat4_id",
+      "value": "PASTE_CAT4_ID_HERE",
+      "type": "string"
+    },
+    {
+      "key": "match_id",
+      "value": "PASTE_MATCH_ID_AFTER_MATCHING",
+      "type": "string"
+    }
+  ]
+}

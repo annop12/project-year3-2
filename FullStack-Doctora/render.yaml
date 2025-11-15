@@ -1,0 +1,46 @@
+services:
+  # Backend Service
+  - type: web
+    name: doctora-backend
+    runtime: docker
+    dockerfilePath: ./doctora-spring-boot/Dockerfile
+    dockerContext: ./doctora-spring-boot
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: SERVER_PORT
+        value: 8082
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+    healthCheckPath: /api/health
+
+  # Frontend Service (will deploy after backend)
+  - type: web
+    name: doctora-frontend
+    runtime: docker
+    dockerfilePath: ./FrontendDoctora/Dockerfile
+    dockerContext: ./FrontendDoctora
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: doctora-db
+    databaseName: doctorbook
+    user: doctora_user
