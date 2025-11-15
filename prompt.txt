@@ -1,0 +1,64 @@
+﻿รายละเอียดงาน Backend
+1. Project Setup
+* ตั้งค่า Spring Boot project (Gradle/Maven)
+* แบ่ง package structure (controller, service, repository, model/entity, config)
+* Config application.yml (port, db connection, jwt secret, etc.)
+* เตรียม Docker Compose (PostgreSQL + Redis)
+* ติดตั้ง Flyway สำหรับ DB migration
+2. Database Design (PostgreSQL)
+สร้างตารางหลัก:
+* users → ข้อมูลผู้ใช้ (role: patient/doctor/admin, ชื่อ, อีเมล, รหัสผ่าน hash)
+* doctors → ข้อมูลหมอ (user_id FK, คลินิก, bio, fee)
+* clinics → ชื่อคลินิก, ที่อยู่, location (PostGIS point)
+* specialties + doctor_specialties → สาขาเชี่ยวชาญ
+* availabilities → ตารางเวลาที่หมอเปิดให้จอง (day_of_week, start_time, end_time)
+* appointments → การนัด (doctor_id, patient_id, tsrange, status) + exclusion constraint กันซ้อนเวลา
+* reviews → รีวิวและคะแนน (doctor_id, patient_id, rating, comment)
+✅ เพิ่ม Index:
+* Full Text Search index บน doctor name + specialty
+* GiST index สำหรับ PostGIS (ค้นหาใกล้ฉัน)
+* GiST index สำหรับ tsrange (กันซ้อนเวลา)
+3. Authentication & Authorization
+* ระบบสมัครสมาชิก/ล็อกอิน (Spring Security + JWT)
+* Middleware ตรวจสอบ token
+* Role-based (patient/doctor/admin) → จำกัด endpoint
+* Password hashing (BCrypt)
+4. Core APIs (REST)
+4.1 User
+* POST /auth/register → สมัครสมาชิก
+* POST /auth/login → เข้าสู่ระบบ
+* GET /users/me → ข้อมูลโปรไฟล์ตัวเอง
+4.2 Doctor
+* GET /doctors?specialty=cardiology&city=Madrid → ค้นหาหมอ
+* GET /doctors/{id} → ดูข้อมูลหมอ
+* POST /doctors/{id}/availability (role=doctor) → เพิ่มเวลาที่ว่าง
+4.3 Appointment
+* POST /appointments (role=patient) → จองนัด
+* GET /appointments/my (patient) → ดูนัดของตัวเอง
+* GET /appointments/my-patients (doctor) → ดูนัดคนไข้ที่จองมา
+* PATCH /appointments/{id}/cancel → ยกเลิกนัด
+4.4 Review
+* POST /doctors/{id}/reviews → เพิ่มรีวิว
+* GET /doctors/{id}/reviews → ดึงรีวิวทั้งหมด
+5. Business Logic
+* ตรวจสอบเวลาที่จองไม่ชนกัน (ใช้ tsrange + exclusion constraint)
+* ตรวจสอบว่าสถานะนัด (pending/confirmed/cancelled) ถูกต้อง
+* จำกัดสิทธิ์: คนไข้จองนัดได้เฉพาะหมอ, หมอแก้ไข availability ของตัวเองได้เท่านั้น
+* คำนวณค่าเฉลี่ยรีวิวเวลาคืนข้อมูลหมอ
+6. Notifications (MVP)
+* ส่งอีเมล/Push (ผ่าน SMTP หรือ 3rd party) เมื่อจอง/ยกเลิกนัด
+* ตั้ง Cron Job (Spring Scheduler) → แจ้งเตือนล่วงหน้าก่อน 1 วัน
+7. Optimization
+* ใช้ Redis cache สำหรับ search doctor (query บ่อย)
+* ใช้ pagination (Spring Data) สำหรับ query reviews, appointments
+* Logging (SLF4J) + Monitoring (Actuator + Prometheus)
+8. Testing
+* Unit Test (JUnit + Mockito) → service layer
+* Integration Test (Spring Boot Test) → API endpoint
+* DB Test (Testcontainers + Postgres)
+9. Deployment
+* Dockerize Spring Boot
+* CI/CD pipeline (GitHub Actions/GitLab CI) → run test + deploy
+* Deploy บน Cloud (AWS/GCP/Azure) → Postgres RDS, App Service, etc.
+
+ช่วยดราฟแพลการทำงานมาหน่อยมาต้องเริ่มยังไงบ้าง
